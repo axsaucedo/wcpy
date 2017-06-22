@@ -1,8 +1,7 @@
 
 import re
 
-all_symbols = re.compile('[^a-zA-Z -]')
-print("HEREEEEEEE2")
+all_symbols = re.compile("[^a-zA-Z -']")
 
 class WCFileExtractor:
 
@@ -12,7 +11,6 @@ class WCFileExtractor:
 
     def extract(self, words_dict={}):
 
-        print("HEREEEEEEE")
         with self._file_opener(self._file_path) as file:
 
             for line in file:
@@ -20,7 +18,6 @@ class WCFileExtractor:
 
                 for word in words:
                     self._add_word(word, line, words_dict)
-
 
         return words_dict
 
