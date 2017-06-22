@@ -1,11 +1,22 @@
-from setuptools import setup
-from setuptools import find_packages
+from setuptools import setup, Command, find_packages
 import os
 import pywc
 
 currentFileDirectory = os.path.dirname(__file__)
 with open(os.path.join(currentFileDirectory, "README.md"), "r") as f:
     readme = f.read()
+
+
+class CleanCommand(Command):
+    """Custom clean command to tidy up the project root."""
+    user_options = []
+    def initialize_options(self):
+        pass
+    def finalize_options(self):
+        pass
+    def run(self):
+        os.system('rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info')
+
 
 print(find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]))
 
@@ -29,5 +40,8 @@ setup(
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     scripts=('pywc.py',),
     data_files=[ (".", ["LICENSE"]) ],
-    test_suite='tests'
+    test_suite='tests',
+    cmdclass={
+        'clean': CleanCommand,
+    }
 )
