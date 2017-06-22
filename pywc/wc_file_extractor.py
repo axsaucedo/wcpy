@@ -1,7 +1,7 @@
 
 import re
 
-all_symbols = re.compile("[^a-zA-Z -']")
+all_symbols = re.compile("[^a-zA-Z '-]")
 
 class WCFileExtractor:
 
@@ -10,14 +10,26 @@ class WCFileExtractor:
         self._file_opener = file_opener
 
     def extract(self, words_dict={}):
+        """
+        TODO: Add Docs
+        """
 
         with self._file_opener(self._file_path) as file:
 
             for line in file:
+                added_words = set()
                 words = self._line_to_words(line)
 
                 for word in words:
-                    self._add_word(word, line, words_dict)
+
+                    add_sentence = True
+
+                    if word not in added_words:
+                        added_words.add(word)
+                    else:
+                        add_sentence = False
+
+                    self._add_word(word, line, words_dict, add_sentence=add_sentence)
 
         return words_dict
 
@@ -31,7 +43,7 @@ class WCFileExtractor:
         return processed_words
 
 
-    def _add_word(self, word, line, words_dict={}):
+    def _add_word(self, word, line, words_dict={}, add_sentence=True):
 
         if word not in words_dict:
              words_dict[word] = {
@@ -48,7 +60,8 @@ class WCFileExtractor:
         if self._file_path not in wd_f:
             wd_f[self._file_path] = []
 
-        wd_f[self._file_path].append(line)
+        if add_sentence:
+            wd_f[self._file_path].append(line)
 
         return words_dict
 

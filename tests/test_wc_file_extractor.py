@@ -1,9 +1,10 @@
 from pywc import WCFileExtractor
 
+import json
 import unittest
 from unittest.mock import MagicMock, call
 
-ACTUAL_FILE = "test_data/doc1.txt"
+ACTUAL_FILE = "tests/test_data/doc1.txt"
 TEST_FILE = "TEST_FILE"
 TEST_SENTENCE = "TEST SENTENCE"
 TEST_SENTENCE_2 = "TEST SENTENCE TWO"
@@ -24,8 +25,22 @@ class TestWCFileExtractor(unittest.TestCase):
         self._extractor = WCFileExtractor(TEST_FILE, self._openMock)
 
     def test_wc_file_extractor_end_to_end_with_files(self):
+
         extractor = WCFileExtractor(ACTUAL_FILE)
         result = extractor.extract()
+
+        for word_obj in result:
+
+            word_count = result[word_obj]["word_count"]
+            total_sentences = 0
+
+            wo_f = result[word_obj]["files"]
+            for file in wo_f:
+                total_sentences += len(wo_f[file])
+
+            # Make sure that all the word counts are equal or greater
+            # than the number of sentences
+            self.assertGreaterEqual(word_count, total_sentences)
 
 
     def test_wc_file_extractor_end_to_end_integration(self):
