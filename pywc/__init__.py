@@ -1,4 +1,4 @@
-from wc_file_extractor import WCFileExtractor
+from pywc.wc_file_extractor import WCFileExtractor
 
 __all__ = [ 'WCFileExtractor', 'main' ]
 
