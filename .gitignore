@@ -2,3 +2,5 @@ venv
 .DS_Store
 *pyc
 *.pyc
+pywc.egg-info
+*__pycache__

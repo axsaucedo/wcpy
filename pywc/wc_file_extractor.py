@@ -2,6 +2,7 @@
 import re
 
 all_symbols = re.compile('[^a-zA-Z -]')
+print("HEREEEEEEE2")
 
 class WCFileExtractor:
 
