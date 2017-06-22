@@ -1,1 +1,3 @@
 venv
+.PYC
+.DS_Store
