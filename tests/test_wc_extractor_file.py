@@ -21,7 +21,7 @@ class TestWCExtractorFile(unittest.TestCase):
         self._openMock = MagicMock()
         self._openMock.return_value.__enter__.return_value = [TEST_SENTENCE, TEST_SENTENCE_2]
 
-        self._extractor = WCExtractorFile(TEST_FILE, self._openMock)
+        self._extractor = WCExtractorFile(TEST_FILE, file_opener=self._openMock, filter_words=[])
 
     def test_wc_extractor_file_end_to_end_with_files(self):
 
@@ -41,6 +41,33 @@ class TestWCExtractorFile(unittest.TestCase):
             # Make sure that all the word counts are equal or greater
             # than the number of sentences
             self.assertGreaterEqual(word_count, total_sentences)
+
+
+
+    # def test_wc_extractor_file_integration_filters(self):
+
+    #     filter_words=[TEST_WORD]
+    #     extractor = WCExtractorFile(TEST_FILE, file_opener=self._openMock, filter_words=filter_words)
+
+    #     result_d_words = {}
+    #     expected_d_words = {
+    #         TEST_WORD: {
+    #             "word_count": 2,
+    #             "files": {
+    #                 TEST_FILE: [ TEST_SENTENCE, TEST_SENTENCE_2, TEST_SENTENCE ]
+    #             }
+    #         }
+    #     }
+
+    #     self._extractor._add_word(TEST_WORD, TEST_SENTENCE, result_d_words)
+    #     self._extractor._add_word(TEST_WORD_2, TEST_SENTENCE_2, result_d_words)
+    #     self._extractor._add_word(TEST_WORD, TEST_SENTENCE, result_d_words)
+    #     self._extractor._add_word(TEST_WORD_3, TEST_SENTENCE, result_d_words)
+
+    #     print(result_d_words)
+    #     print()
+    #     print(expected_d_words)
+    #     self.assertEqual(result_d_words, expected_d_words)
 
 
     def test_wc_extractor_file_end_to_end_integration(self):
@@ -106,9 +133,26 @@ class TestWCExtractorFile(unittest.TestCase):
         self.assertEqual(l_sentence_2, l_result_2)
 
 
+    def test_split_line_with_filters(self):
+
+        filter_words=[TEST_WORD]
+        extractor = WCExtractorFile(TEST_FILE, file_opener=self._openMock, filter_words=filter_words)
+
+        result = extractor._split_line(TEST_SENTENCE)
+
+        self.assertEqual(result, [TEST_WORD])
+
+
+        filter_words=[TEST_WORD]
+        extractor = WCExtractorFile(TEST_FILE, file_opener=self._openMock, filter_words=filter_words)
+
+        result = extractor._split_line(TEST_SENTENCE_2)
+
+        self.assertEqual(result, [TEST_WORD])
+
 
     def test_add_single_word(self):
-        d_words = {}
+        result_d_words = {}
         expected_d_words = {
             TEST_WORD: {
                 "word_count": 1,
@@ -118,12 +162,12 @@ class TestWCExtractorFile(unittest.TestCase):
             }
         }
 
-        result_d_words = self._extractor._add_word(TEST_WORD, TEST_SENTENCE, d_words)
+        self._extractor._add_word(TEST_WORD, TEST_SENTENCE, result_d_words)
 
         self.assertEqual(result_d_words, expected_d_words)
 
     def test_add_multiple_words(self):
-        d_words = {}
+        result_d_words = {}
         # Testing that adding multiple of the same words
         expected_d_words = {
             TEST_WORD: {
@@ -134,11 +178,10 @@ class TestWCExtractorFile(unittest.TestCase):
             }
         }
 
-        result_d_words = self._extractor._add_word(TEST_WORD, TEST_SENTENCE, d_words)
-        result_d_words = self._extractor._add_word(TEST_WORD, TEST_SENTENCE_2, d_words)
-        result_d_words = self._extractor._add_word(TEST_WORD, TEST_SENTENCE, d_words)
+        self._extractor._add_word(TEST_WORD, TEST_SENTENCE, result_d_words)
+        self._extractor._add_word(TEST_WORD, TEST_SENTENCE_2, result_d_words)
+        self._extractor._add_word(TEST_WORD, TEST_SENTENCE, result_d_words)
 
         self.assertEqual(result_d_words, expected_d_words)
-
 
 

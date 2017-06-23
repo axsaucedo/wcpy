@@ -12,7 +12,8 @@ class WCExtractor:
 
     def __init__(self, limit=None, direction=DIRECTION.ASCENDING,
                     extractor_file=WCExtractorFile, dict_words={},
-                    extractor_processor=WCExtractorProcessor, file_extension=".txt"):
+                    extractor_processor=WCExtractorProcessor, file_extension=".txt",
+                    filter_words=[]):
 
         self._dict_words = dict_words
         self._file_extension = file_extension
@@ -20,6 +21,7 @@ class WCExtractor:
         self._direction = direction
         self._extractor_processor = extractor_processor
         self._extractor_file = extractor_file
+        self._filter_words = filter_words
 
 
     def extract_wc_and_display(self, paths):
@@ -30,7 +32,7 @@ class WCExtractor:
         all_file_paths = self._extract_all_paths(paths)
 
         for path in all_file_paths:
-            extractor_file = self._extractor_file(path)
+            extractor_file = self._extractor_file(path, filter_words=self._filter_words)
             extractor_file.extract_wc_from_file(result_dict)
 
         extractor_processor = self._extractor_processor(limit=self._limit, direction=self._direction)

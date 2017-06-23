@@ -11,9 +11,10 @@ class PathNotValidException(Exception):
 
 class WCExtractorFile:
 
-    def __init__(self, file_path, file_opener=open):
+    def __init__(self, file_path, file_opener=open, filter_words=[]):
         self._file_path = file_path
         self._file_opener = file_opener
+        self._filter_words = set(filter_words)
 
     def extract_wc_from_file(self, d_words={}):
         """
@@ -49,6 +50,9 @@ class WCExtractorFile:
             line_no_sym = all_symbols_re.sub(' ', line)
             words = line_no_sym.split()
 
+        if len(self._filter_words) > 0:
+            words = [w for w in words if w in self._filter_words]
+
         processed_words = [ w.lower() for w in words if w not in '-' ]
 
         return processed_words
@@ -74,5 +78,4 @@ class WCExtractorFile:
         if add_sentence:
             dw_f[self._file_path].append(line)
 
-        return d_words
 

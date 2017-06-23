@@ -15,7 +15,7 @@ class CleanCommand(Command):
     def finalize_options(self):
         pass
     def run(self):
-        os.system('rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info')
+        os.system('rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info ./**/__pycache__ ./.eggs ./.cache')
 
 
 print(find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]))
@@ -40,8 +40,10 @@ setup(
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     scripts=('pywc.py',),
     data_files=[ (".", ["LICENSE"]) ],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
     test_suite='tests',
     cmdclass={
-        'clean': CleanCommand,
+        'clean': CleanCommand
     }
 )
