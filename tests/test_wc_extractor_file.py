@@ -1,4 +1,4 @@
-from pywc import WCExtractorFile
+from wcpy import WCExtractorFile
 
 import unittest
 from unittest.mock import MagicMock, call

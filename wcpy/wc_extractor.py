@@ -1,6 +1,6 @@
 
-from pywc.wc_extractor_processor import WCExtractorProcessor, DIRECTION
-from pywc.wc_extractor_file import WCExtractorFile
+from wcpy.wc_extractor_processor import WCExtractorProcessor, DIRECTION
+from wcpy.wc_extractor_file import WCExtractorFile
 
 import glob, os
 

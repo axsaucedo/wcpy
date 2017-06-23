@@ -1,5 +1,5 @@
-from pywc.wc_extractor import WCExtractor
-from pywc.wc_extractor_processor import WCExtractorProcessor, DIRECTION
+from wcpy.wc_extractor import WCExtractor
+from wcpy.wc_extractor_processor import WCExtractorProcessor, DIRECTION
 
 import unittest
 from unittest.mock import MagicMock

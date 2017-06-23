@@ -1,0 +1,11 @@
+setup.cfg
+setup.py
+wcpy/__init__.py
+wcpy/main.py
+wcpy/wc_extractor.py
+wcpy/wc_extractor_file.py
+wcpy/wc_extractor_processor.py
+wcpy.egg-info/PKG-INFO
+wcpy.egg-info/SOURCES.txt
+wcpy.egg-info/dependency_links.txt
+wcpy.egg-info/top_level.txt

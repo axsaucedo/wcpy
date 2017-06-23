@@ -1,5 +1,5 @@
 
-from pywc import WCExtractor
+from wcpy import WCExtractor
 
 import argparse
 
