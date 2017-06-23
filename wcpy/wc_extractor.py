@@ -12,7 +12,7 @@ class InvalidColumnException(Exception):
     def __init__(self, col):
         Exception.__init__(self, "Column provided is not valid: " + str(col) + ". Valid columns are: " + str(VALID_COLUMNS))
 
-VALID_COLUMNS = ["word", "count", "files", "sentences"]
+VALID_COLUMNS = ["word", "word_count", "files", "file_count", "sentences", "sentence_count"]
 VALID_COLUMNS_SET = set(VALID_COLUMNS)
 
 
@@ -20,7 +20,11 @@ class WCExtractor:
 
     def __init__(self, limit=None, direction=DIRECTION.ASCENDING,
                     extractor_file=WCExtractorFile, filter_words=[],
-                    extractor_processor=WCExtractorProcessor, file_extension="txt"):
+                    extractor_processor=WCExtractorProcessor,
+                    file_extension="txt", output_file=None):
+
+        if output_file and os.path.exists(output_file):
+            raise PathNotValidException("A file already exists, please choose a different one: " + output_file)
 
         # TODO: Check for valid file extension
         self._file_extension = file_extension
@@ -29,6 +33,7 @@ class WCExtractor:
         self._extractor_processor = extractor_processor
         self._extractor_file = extractor_file
         self._filter_words = filter_words
+        self._output_file = output_file
 
 
     def generate_wc_dict(self, paths):
@@ -60,8 +65,19 @@ class WCExtractor:
         list_wc = self.generate_wc_list(paths)
         headers, rows = self._generate_table(list_wc, char_limit=char_limit, columns=columns)
 
-        self._print_table_ascii(headers, rows)
+        # Change the output stream depending on whether we are requiested
+        #   to save to a file or not
+        #   Provide an anonimous function with print(,end='') to avoid new
+        #   lines being printed and enable compatibility with the out_stream func
+        out_stream = lambda x: print(x, end='')
+        file = None
+        if self._output_file:
+            file = open(self._output_file, 'w')
+            out_stream = file.write
 
+        self._print_table_ascii(headers, rows, out_stream)
+
+        if file: file.close()
 
     def _check_all_root_paths_valid(self, paths):
         for path in paths:
@@ -152,6 +168,9 @@ class WCExtractor:
                 str_files = str_files[:char_limit] + "..." if len(str_files) > char_limit else str_files
                 str_sentences = str_sentences[:char_limit] + "..." if len(str_sentences) > char_limit else str_sentences
 
+            count_files = str(len(files))
+            count_sentences = str(len(sentences))
+
             # Note: if column becomes longer, it will be necessary
             #   to create a set to improve time complexity
             if columns and len(columns):
@@ -163,19 +182,22 @@ class WCExtractor:
                 if VALID_COLUMNS[2] in columns:
                     row_cols.append(str_files)
                 if VALID_COLUMNS[3] in columns:
+                    row_cols.append(count_files)
+                if VALID_COLUMNS[4] in columns:
                     row_cols.append(str_sentences)
+                if VALID_COLUMNS[5] in columns:
+                    row_cols.append(count_sentences)
 
                 rows.append(row_cols)
             else:
-                rows.append([ word, wc, str_files, str_sentences ])
+                rows.append([ word, wc, str_files, count_files, str_sentences, count_sentences ])
 
         # We define the headers
         headers = columns if columns and len(columns) else VALID_COLUMNS
-        print(headers)
-        print(rows)
+
         return headers, rows
 
-    def _print_table_ascii(self, headers, rows):
+    def _print_table_ascii(self, headers, rows, out_stream=print):
 
         # Here, get the max_widths of all the data
         #   To do this, first transpose / group all strings by columns.
@@ -188,25 +210,25 @@ class WCExtractor:
         #   Print a number of dashes relative to the width of each column
         #   by using the * python operator.
         #   The separator of each is also 3 characters long, same as above
-        print(' ', '-+-'.join( '-' * width for width in max_widths ) )
+        out_stream(' ' + '-+-'.join( '-' * width for width in max_widths ) + '\n')
 
         # Now print the headers
         #   Using Python's format functionality, as it allows us to specify a
         #   standard width, which will make our table consistent and symmetric
         #   In this case, our width is 'max_width', and we print the title within that
         #   and separate each of the strings by a pipe symbol '|'
-        print('|',' | '.join( format(title, "%ds" % max_width) for max_width, title in zip(max_widths, headers) ), '|')
+        out_stream('|' + ' | '.join( format(title, "%ds" % max_width) for max_width, title in zip(max_widths, headers) ) + '|'+ '\n')
 
         # Another row divider
-        print('|', '-+-'.join( '-' * width for width in max_widths ) )
+        out_stream('|' + '-+-'.join( '-' * width for width in max_widths ) + '\n')
 
         # Now print all the data
         #   This uses a similar approach as the print map used above
         #   when printing the headers
         for row in rows:
-            print('|', " | ".join( format(cdata, "%ds" % width) for width, cdata in zip(max_widths, row) ), '|')
+            out_stream('|' + " | ".join( format(cdata, "%ds" % width) for width, cdata in zip(max_widths, row) ) + '|'+ '\n')
 
         # Final row divider
-        print(' ', '-+-'.join( '-' * width for width in max_widths ) )
+        out_stream(' ' + '-+-'.join( '-' * width for width in max_widths ) + '\n')
 
 

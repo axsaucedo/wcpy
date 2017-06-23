@@ -1,4 +1,5 @@
 from setuptools import setup, Command, find_packages
+from distutils.command.install_data import install_data
 import os
 import wcpy
 
@@ -6,6 +7,9 @@ currentFileDirectory = os.path.dirname(__file__)
 with open(os.path.join(currentFileDirectory, "README.md"), "r") as f:
     readme = f.read()
 
+# Maintain dependencies of requirements.txt
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
 
 class CleanCommand(Command):
     """Custom clean command to tidy up the project root."""
@@ -17,6 +21,13 @@ class CleanCommand(Command):
     def run(self):
         os.system('rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info ./**/__pycache__ ./.eggs ./.cache')
 
+# Make sure nltk language packages are installed
+class my_install(install_data):
+    def run(self):
+        install_data.run(self)
+
+        import nltk
+        nltk.download('punkt')
 
 print(find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]))
 
@@ -38,12 +49,14 @@ setup(
     keywords="Word count (wcpy) on steroids",
     license="MIT",
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
+    install_requirements=requirements,
     scripts=('wc.py',),
     data_files=[ (".", ["LICENSE"]) ],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
     test_suite='tests',
     cmdclass={
-        'clean': CleanCommand
+        'clean': CleanCommand,
+        'install_data': my_install
     }
 )
