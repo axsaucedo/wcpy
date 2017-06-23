@@ -3,4 +3,5 @@ venv
 *pyc
 *.pyc
 pywc.egg-info
-*__pycache__
+*__pycache__.cache
+.eggs
