@@ -14,8 +14,8 @@ class TestWCExtractor(unittest.TestCase):
         list_wc = [{'word': 'the', 'word_count': 119, 'files': {'doc1.txt': ["The story", "And the book"]}}, {'word': 'and', 'word_count': 103, 'files': {'doc1.txt': ["Me and you", "This and that"]}}, {'word': 'to', 'word_count': 93, 'files': {'doc1.txt': ["To here.", "there to"]}}]
 
         # Test table is generated in the right format with the defaults
-        expected_headers = ['word', 'word_count', 'files', 'sentences']
-        expected_rows = [['the', '119', 'doc1.txt', "The story, And the book"], ['and', '103', 'doc1.txt', "Me and you, This and that"], ['to', '93', 'doc1.txt', "To here., there to"]]
+        expected_headers = ['word', 'word_count', 'files', 'file_count', 'sentences', 'sentence_count']
+        expected_rows = [['the', '119', 'doc1.txt', '1', "The story, And the book", '2'], ['and', '103', 'doc1.txt', '1', "Me and you, This and that", '2'], ['to', '93', 'doc1.txt', '1', "To here., there to", '2']]
 
         headers, rows = extractor._generate_table(list_wc)
 
