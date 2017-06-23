@@ -20,8 +20,9 @@ class WCExtractor:
 
     def __init__(self, limit=None, direction=DIRECTION.ASCENDING,
                     extractor_file=WCExtractorFile, filter_words=[],
-                    extractor_processor=WCExtractorProcessor, file_extension=".txt"):
+                    extractor_processor=WCExtractorProcessor, file_extension="txt"):
 
+        # TODO: Check for valid file extension
         self._file_extension = file_extension
         self._limit = limit
         self._direction = direction
@@ -67,6 +68,11 @@ class WCExtractor:
             if not os.path.exists(path):
                 raise PathNotValidException(path)
 
+            # TODO: Add support for globbed files
+            if "*" in path:
+                raise PathNotValidException("Globbed paths (*) are not supported, please just select the folder: " + str(path))
+
+
     def _extract_all_paths(self, paths):
         """
             Traverses all folders and subfolders recurisvely, and expands the paths
@@ -98,7 +104,7 @@ class WCExtractor:
         if not os.path.exists(folder_path):
             return all_sub_paths
 
-        glob_extension = "**/*" + self._file_extension
+        glob_extension = "**/*." + self._file_extension
         glob_path = os.path.join(folder_path, glob_extension)
 
         for sub_path in glob.iglob(glob_path, recursive=True):

@@ -59,10 +59,6 @@ class TestWCExtractorFile(unittest.TestCase):
         }
 
         extractor.extract_wc_from_file(result_d_words)
-
-        print(result_d_words)
-        print()
-        print(expected_d_words)
         self.assertEqual(result_d_words, expected_d_words)
 
 
