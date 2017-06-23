@@ -1,22 +1,31 @@
 
 from wcpy.wc_extractor_processor import WCExtractorProcessor, DIRECTION
-from wcpy.wc_extractor_file import WCExtractorFile
+from wcpy.wc_extractor_file import WCExtractorFile, PathNotValidException
 
 import glob, os
-
-class PathNotValidException(Exception):
-    def __init__(self, path):
-        Exception.__init__(self, "Path provided is not valid: " + str(path))
-
-class InvalidColumnException(Exception):
-    def __init__(self, col):
-        Exception.__init__(self, "Column provided is not valid: " + str(col) + ". Valid columns are: " + str(VALID_COLUMNS))
 
 VALID_COLUMNS = ["word", "word_count", "files", "file_count", "sentences", "sentence_count"]
 VALID_COLUMNS_SET = set(VALID_COLUMNS)
 
 
 class WCExtractor:
+    """
+    The extractor class is the highest level interface and orchestrates the
+    file extractors as well as the processors. It handles everything related
+    to managing the folder glob expansion and processing/ printing the output.
+
+    Note:
+        The file_extension is still a feature that has not been tested with other types of files
+
+    Args:
+        limit (int): Limits the number of rows in the output table
+        direction (int): Sort direction for elements in table
+        filter_words (list): If present, only those words will be shown in output
+        output_file (str): If present, output will be saved to file instead of printed to standard output
+        file_extension (str): File type to process - everything else will be ignored
+        extractor_processor (WCExtractorProcessor): Dependency Injection for WCExtractorProcessor class for testing
+        extractor_file (WCExtractorFile): Dependency injection for WCExtractorFile class for testing
+    """
 
     def __init__(self, limit=None, direction=DIRECTION.ASCENDING,
                     extractor_file=WCExtractorFile, filter_words=[],
@@ -37,6 +46,15 @@ class WCExtractor:
 
 
     def generate_wc_dict(self, paths):
+        """
+            Generate a dictionary of WC with the words as keys and their Docs, counts and sentences as values
+
+            Args:
+                paths (list): The paths to traverse and extract files from
+
+            Returns:
+                result_dict: Dictionary containing the WC objects
+        """
 
         result_dict = {}
 
@@ -51,6 +69,15 @@ class WCExtractor:
 
 
     def generate_wc_list(self, paths):
+        """
+            Generates a soted list of WC objects from the files in the paths given
+
+            Args:
+                paths (list): List of strings with the paths to traverse and find files to extract
+
+            Returns:
+                result_list: A list with the sorted WC objects
+        """
 
         dict_wc = self.generate_wc_dict(paths)
 
@@ -61,6 +88,16 @@ class WCExtractor:
 
 
     def display_wc_table(self, paths, char_limit=50, columns=None):
+        """
+            Displays the Word Occurences found in the paths given
+            it specifies whether it should be printed to the console or
+            saved into a file
+
+            Args:
+                paths (list): Paths to traverse and find files to execute
+                char_limit (int): Number of chars where string cells will be truncated
+                columns (list): Columns that will be displayed
+        """
 
         list_wc = self.generate_wc_list(paths)
         headers, rows = self._generate_table(list_wc, char_limit=char_limit, columns=columns)
@@ -80,6 +117,15 @@ class WCExtractor:
         if file: file.close()
 
     def _check_all_root_paths_valid(self, paths):
+        """
+            Checks that all the paths in the array given are valid paths
+
+            Args:
+                paths (list): List of strings containing all paths to be checked
+
+            Raises:
+                PathNotValidException: If a path is not valid, it raises this exception
+        """
         for path in paths:
             if not os.path.exists(path):
                 raise PathNotValidException(path)
@@ -95,6 +141,12 @@ class WCExtractor:
                 the paths must be valid, and can be checked with the
                 _check_all_root_paths_valid funciton. If they don't exist it will be
                 skipped.
+
+            Args:
+                paths: the paths to extract the subpaths from
+
+            Returns:
+                all_file_paths: All of the paths and subpaths found
         """
         all_file_paths = []
         for path in paths:
@@ -115,6 +167,15 @@ class WCExtractor:
 
 
     def _expand_folder_paths(self, folder_path):
+        """
+        Recursively finds all the sub-folders from the path given in the parameter
+
+        Args:
+            folder_path (string): Path given to find all subfiles and subfolders
+
+        Returns:
+            all_sub_paths: List of string containing all sub-paths
+        """
         all_sub_paths = []
 
         if not os.path.exists(folder_path):
@@ -130,6 +191,19 @@ class WCExtractor:
 
 
     def _generate_table(self, list_wc, char_limit=50, columns=None):
+        """
+        Converts a sorted list of word occurence objects into a row-based
+        table containing all the elements of the list in a set of columns.
+
+        Args:
+            list (list_wc): A list containing WC objects
+            char_limit (int): The maximum number of chars for words to be truncated
+            columns (list): A string list containing the columns to show
+
+        Returns:
+            headers: A 1-dimensional list of strings containing headers
+            rows: A 2-dimensional array containing all the list wc in table format
+        """
 
         # We first check that the columns are valid
         if columns and len(columns):
@@ -198,6 +272,9 @@ class WCExtractor:
         return headers, rows
 
     def _print_table_ascii(self, headers, rows, out_stream=print):
+        """
+        Converts a list of headers and a list of rows in an ASCII table
+        """
 
         # Here, get the max_widths of all the data
         #   To do this, first transpose / group all strings by columns.
@@ -231,4 +308,11 @@ class WCExtractor:
         # Final row divider
         out_stream(' ' + '-+-'.join( '-' * width for width in max_widths ) + '\n')
 
+
+class InvalidColumnException(Exception):
+    """
+    Thrown when a column provided is not valid from the set of columns provided
+    """
+    def __init__(self, col):
+        Exception.__init__(self, "Column provided is not valid: " + str(col) + ". Valid columns are: " + str(VALID_COLUMNS))
 

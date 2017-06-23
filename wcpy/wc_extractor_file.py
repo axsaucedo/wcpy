@@ -6,10 +6,22 @@ from nltk.tokenize import word_tokenize
 all_symbols_re = re.compile("(^[A-Z]\.|[^a-zA-Z '-]|''|--)")
 
 class PathNotValidException(Exception):
+    """
+    Thrown when a path provided does not exist or is not valid
+    """
     def __init__(self, path):
         Exception.__init__(self, "Path provided is not valid: " + str(path))
 
 class WCExtractorFile:
+    """
+    The extractor file class is the core of the processing. It extracts the contents
+    of the files themselves, counts the words and adds them to a WC dictionary object.
+
+    Args:
+        file_path (str): The file path to extract the words from
+        file_opener (func): A function that it will use to open files, passed for dependency injection
+        filter_words (list): A set of words to filter on
+    """
 
     def __init__(self, file_path, file_opener=open, filter_words=[]):
         self._file_path = file_path
@@ -18,7 +30,14 @@ class WCExtractorFile:
 
     def extract_wc_from_file(self, d_words={}):
         """
-        TODO: Add Docs
+        This is the main public function, which extracts all the contents of
+        a file, counts the number of occurences and updates the dictionary object
+
+        Args:
+            d_words (dict): An object to add the words, sentences and docs to
+
+        Returns
+            d_words(dict:parameter): The return is given through this parameter passed by reference
         """
 
         with self._file_opener(self._file_path) as file:
@@ -40,6 +59,19 @@ class WCExtractorFile:
 
 
     def _split_line(self, line):
+        """
+        This function uses the NLTK library to remove characters
+        and split words intelligently.
+
+        The sentences that are repeated more than once in a document are not
+        added again.
+
+        Args:
+            line (str): The line to split
+
+        Returns:
+            processed_words: A list of words without containing individual symbols
+        """
 
         try:
             words_with_symbols = word_tokenize(line)
@@ -59,7 +91,16 @@ class WCExtractorFile:
 
 
     def _add_word(self, word, line, d_words={}, add_sentence=True):
+        """
+            This function adds a word and increases its occurence, sentence and document to the
+            dictionary, and handles all the necessary cases to create new objects
 
+            Args:
+                word (str): The new word to add and count
+                line (str): The line where the word occurs
+                d_words (dict): The WC dictionary to add he word to
+                add_sentence (bool): A boolean that states if the sentence is added or not
+        """
         if word not in d_words:
              d_words[word] = {
                 "word_count": 0,

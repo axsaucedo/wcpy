@@ -11,13 +11,30 @@ class DIRECTION(IntEnum):
     DESCENDING = 1
 
 class WCExtractorProcessor:
+    """
+        This class is in charge in converting the WC Dictionary into a WC list.
+        It also processes the sorting and the cropping.
+
+        Args:
+            limit (int): Sets the limit on number elements displayed
+            direction (bool): Sort direction: Ascending / Descenting
+    """
 
     def __init__(self, limit=None, direction=DIRECTION.ASCENDING):
         self._limit = limit
         self._direction = direction
 
     def process_dict_wc_to_list(self, dict_words={}):
+        """
+        This is the main function of the class, it converts dict to list,
+        sorts the list, and crops it
 
+        Args:
+            dict_words (dict): WC Dictionary containing WC objects
+
+        Returns:
+            cropped_list_words: WC list containing sorted and cropped WC objects
+        """
         list_words = self._convert_dict_wc_to_list_wc(dict_words)
         sorted_list_words = self._sort_list_wc(list_words)
         cropped_list_words = self._crop_list_wc(sorted_list_words)

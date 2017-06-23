@@ -1,9 +1,22 @@
+"""
+This is the MAIN file from the wcpy module.
+The parser is created in this file to, gathering all input from the
+command line interface.
+"""
+
 
 from wcpy import WCExtractor
 
 import argparse
 
 def get_argument_parser():
+    """
+    Create a parser with all the core options for the user to
+    configure the input, processing and output of the word count.
+
+    Returns:
+        parser: Comtaining all the configuration to be displayed
+    """
     parser = argparse.ArgumentParser(
         description='Count the number of words in the files on a folder',
         formatter_class=argparse.RawTextHelpFormatter,
@@ -36,7 +49,14 @@ EXAMPLE USAGE:
     return parser
 
 def main(args):
+    """
+    Deploys a WCExtractor on the arguments that have been given through the
+    command line interface.
 
+    Raises:
+        InvalidColumnException: When a column provided in the options is invalid
+        PathNotValidException: When path provided does not exist or not valid
+    """
     extractor = WCExtractor(
                     limit=args.limit,
                     direction=not(args.reverse),
