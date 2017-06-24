@@ -105,10 +105,60 @@ wc.py -v
 
 # Development
 
+To interact with the SDK, you only need to import the WCExtractor class, and interact with three main methods:
+
+## generate_wc_dict(self, paths)
+
+This function finds all the files in a given set of paths, and builds a dictionary with the following structure:
+
+```
+{
+    <WORD_1:: STR>: {
+        word_count: <WORD_COUNT:: INT>,
+        files: {
+            <FILE_PATH:: STR>: [
+                <LINE_1:: STR>,
+                <LINE_2:: STR>,
+                …
+            ]
+        },
+        {
+            …
+        }
+    },
+    <WORD_2:: STR>: ...
+}
+```
+
+## generate_wc_list(self, paths)
+
+This function finds all the files in a given set of paths, and builds a sorted list (by word count) of the following structure
+
+```
+[
+    {
+        "word": <WORD_1:: STR>,
+
+        word_count: <WORD_COUNT:: INT>,
+        files: {
+            <FILE_PATH:: STR>: [
+                <LINE_1:: STR>,
+                <LINE_2:: STR>,
+                …
+            ]
+        }
+    },
+    {
+        "word": <WORD_2:: STR>,
+        ...
+
+    }
+]
+```
 
 # Contributing
 
-If you'd like to contribute
+If you'd like to contribute, feel free to submit a pull request, open bugs/issues and join the discussion.
 
 ## Install VirtualEnv and Requirements
 
@@ -122,6 +172,12 @@ Then install it using the setup.py command
 
 ```
 python setup.py install_data
+```
+
+You can also install the requirements directly by running
+
+```
+python -r requirements.txt
 ```
 
 ## NLTK
@@ -147,5 +203,10 @@ To clean all the files generated during runtime simply run:
 ```
 python setup.py clean
 ```
+
+# Roadmap
+
+* Support multiple types of documents
+
 
 
