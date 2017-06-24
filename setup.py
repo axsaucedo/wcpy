@@ -1,5 +1,5 @@
 from setuptools import setup, Command, find_packages
-from distutils.command.install_data import install_data
+from distutils.command.install import install
 import os
 
 currentFileDirectory = os.path.dirname(__file__)
@@ -21,9 +21,11 @@ class CleanCommand(Command):
         os.system('rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info ./**/__pycache__ ./.eggs ./.cache')
 
 # Make sure nltk language packages are installed
-class my_install(install_data):
-    def run(self):
-        install_data.run(self)
+class FullInstall(install):
+    def __init__(self, *args, **kwargs):
+        super(FullInstall, self).__init__(*args, **kwargs)
+        import nltk
+        nltk.download('punkt')
 
 print(find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]))
 
@@ -53,13 +55,7 @@ setup(
     test_suite='tests',
     cmdclass={
         'clean': CleanCommand,
-        'install_data': my_install
+        'install_data': FullInstall
     }
 )
-
-
-# Finally we install the punkt package
-import nltk
-nltk.download('punkt')
-
 
