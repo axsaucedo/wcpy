@@ -25,14 +25,11 @@ class my_install(install_data):
     def run(self):
         install_data.run(self)
 
-        import nltk
-        nltk.download('punkt')
-
 print(find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]))
 
 setup(
     name="wcpy",
-    version="0.2",
+    version="0.1",
     description="WordCount in Python with a lot more functionality",
     long_description=readme,
     author="Alejandro Saucedo",
@@ -59,3 +56,10 @@ setup(
         'install_data': my_install
     }
 )
+
+
+# Finally we install the punkt package
+import nltk
+nltk.download('punkt')
+
+
