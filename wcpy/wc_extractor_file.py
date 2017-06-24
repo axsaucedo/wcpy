@@ -4,7 +4,7 @@ from nltk.tokenize import word_tokenize
 import os
 
 # Add the nltk_data files to the projectgs
-file_path = os.path.lsabspath(__file__)
+file_path = os.path.abspath(__file__)
 project_path = os.path.abspath(os.path.join(file_path,"../../nltk_data"))
 nltk.data.path.append(project_path)
 
