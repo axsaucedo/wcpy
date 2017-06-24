@@ -1,13 +1,19 @@
 
 # wc.py
 
-WordCount analysis of documents in Python.
+This repository contains the CLI and SDK for the WordCount Python [ wc.py ] developer tool.
 
 ## Overview
 
-This script provides a set of tools to analyse the number of occurences of words across a single or multiple documents.
+This script provides a set of tools to analyse the number of occurences of words across a single or multiple documents. It can be accessed through the CLI, or directly through the SDK provided by the `WCExtractor` class in the `wcpy` module.
 
-## Installationg
+For the **CLI interface quickstart** please refer to the **User Guide below**.
+
+For the **SDK interface quickstart** please refer to the **Developer Guide below**.
+
+For more advanced documnetation please refer to the official [WCPY documentation](https://axsauze.github.io/wcpy/).
+
+# Installation
 
 You can install it from pip by running the following:
 
@@ -17,7 +23,9 @@ pip install wc.py
 
 This will install the script in your computer so you'll be able to call it directly with `wc.py`.
 
-## Usage
+# CLI User Guide
+
+The main user interface of this library is through the command line interface
 
 Some example usages include the following
 
@@ -70,13 +78,11 @@ python setup.py install_data
 
 ## NLTK
 
-The previous command must have installed the NLTK dependencies, but if by any reason it's not working for you, you can install it with the following:
+This package uses the NLTK `english.pickle` dataset. The dataset includes in both, the repository and the PyPi package, however if you want to donwload more of the languages you can do so with the following command:
 
 ```
 python -c "import nltk; nltk.download('punkt')"
 ```
-
-Regardless this project has a fallback on REGEXes in case that the NLTK package fails for any reason.
 
 
 # Testing
