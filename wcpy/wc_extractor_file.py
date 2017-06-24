@@ -1,9 +1,6 @@
 
-import re
+import nltk
 from nltk.tokenize import word_tokenize
-
-# This regex removes
-all_symbols_re = re.compile("(^[A-Z]\.|[^a-zA-Z '-]|''|--)")
 
 class PathNotValidException(Exception):
     """
@@ -27,6 +24,16 @@ class WCExtractorFile:
         self._file_path = file_path
         self._file_opener = file_opener
         self._filter_words = set(filter_words)
+
+        # Make sure that the NLTK Punkt dataset has been downloaded
+        try:
+            nltk.data.find('tokenizers/punkt.zip')
+        except:
+            print("The punkt NLTK dataset was not found on your system, so it will have to be downloaded")
+            print("This may take a bit, but it will only have to be done once.")
+            print("If you wish to download it yourself you can do so with the commmand:")
+            print('\n\t\tpython -c "import nltk; nltk.download(\'punkt\')"')
+            nltk.download('punkt')
 
     def extract_wc_from_file(self, d_words={}):
         """
@@ -73,14 +80,8 @@ class WCExtractorFile:
             processed_words: A list of words without containing individual symbols
         """
 
-        try:
-            words_with_symbols = word_tokenize(line)
-            words = [ w.lower() for w in words_with_symbols if any(char.isalpha() or char.isdigit() for char in w) ]
-
-        except:
-            print("No 'punkdt' dataset found. Quality is worse, please download with: python -c \"import nltk; nltk.download('punkt')\"")
-            line_no_sym = all_symbols_re.sub(' ', line)
-            words = line_no_sym.split()
+        words_with_symbols = word_tokenize(line)
+        words = [ w.lower() for w in words_with_symbols if any(char.isalpha() or char.isdigit() for char in w) ]
 
         if len(self._filter_words) > 0:
             words = [w for w in words if w in self._filter_words]

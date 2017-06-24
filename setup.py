@@ -5,7 +5,8 @@ import sys
 import atexit
 
 if sys.version_info < (3,0):
-    sys.exit('Sorry, Python < 3.0 is not supported')
+    sys.exit('\nSorry, Python < 3.0 is not supported\nIf you have Python 3.x installed use: pip3 install wc.py')
+    sys.exit('')
 
 currentFileDirectory = os.path.dirname(__file__)
 with open(os.path.join(currentFileDirectory, "README.md"), "r") as f:
@@ -49,7 +50,7 @@ print(find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]))
 
 setup(
     name="wcpy",
-    version="1.0",
+    version="1.1",
     description="WordCount in Python with a lot more functionality",
     long_description=readme,
     author="Alejandro Saucedo",
