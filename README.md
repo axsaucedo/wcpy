@@ -97,10 +97,18 @@ wc.py tests/test_data/ --truncate 20 --columns word count
 wc.py ./ --filter-words tool awesome an --truncate 50 --output output.txt
 ```
 
-#### Get help
+#### Get the current version
 
+```
+wc.py -v
+```
 
 # Development
+
+
+# Contributing
+
+If you'd like to contribute
 
 ## Install VirtualEnv and Requirements
 
@@ -124,8 +132,7 @@ This package uses the NLTK `english.pickle` dataset. The dataset includes in bot
 python -c "import nltk; nltk.download('punkt')"
 ```
 
-
-# Testing
+## Testing
 
 `py.test` is used to run the tests, in order to run it simply run:
 
@@ -133,7 +140,7 @@ python -c "import nltk; nltk.download('punkt')"
 python setup.py test
 ```
 
-# Cleaning
+## Cleaning
 
 To clean all the files generated during runtime simply run:
 
