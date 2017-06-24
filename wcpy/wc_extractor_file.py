@@ -1,6 +1,12 @@
 
 import nltk
 from nltk.tokenize import word_tokenize
+import os
+
+# Add the nltk_data files to the project
+file_path = os.path.abspath(__file__)
+project_path = os.path.abspath(os.path.join(file_path,"../../nltk_data"))
+nltk.data.path.append(project_path)
 
 class PathNotValidException(Exception):
     """
@@ -24,16 +30,6 @@ class WCExtractorFile:
         self._file_path = file_path
         self._file_opener = file_opener
         self._filter_words = set(filter_words)
-
-        # Make sure that the NLTK Punkt dataset has been downloaded
-        try:
-            nltk.data.find('tokenizers/punkt.zip')
-        except:
-            print("The punkt NLTK dataset was not found on your system, so it will have to be downloaded")
-            print("This may take a bit, but it will only have to be done once.")
-            print("If you wish to download it yourself you can do so with the commmand:")
-            print('\n\t\tpython -c "import nltk; nltk.download(\'punkt\')"')
-            nltk.download('punkt')
 
     def extract_wc_from_file(self, d_words={}):
         """
