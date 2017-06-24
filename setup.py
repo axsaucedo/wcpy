@@ -1,8 +1,6 @@
 from setuptools import setup, Command, find_packages
-from setuptools.command.install import install
 import os
 import sys
-import atexit
 
 if sys.version_info < (3,0):
     sys.exit('\nSorry, Python < 3.0 is not supported\nIf you have Python 3.x installed use: pip3 install wc.py')
@@ -26,25 +24,6 @@ class CleanCommand(Command):
         pass
     def run(self):
         os.system('rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info ./**/__pycache__ ./.eggs ./.cache')
-
-def post_install():
-    """
-    Install the nltk package after the wc.py package has been
-       successfully installed
-    """
-    import nltk
-    nltk.download('punkt')
-
-class FullInstall(install):
-    """
-    Create a class that handles the installation of our package
-       together with the post-installations that require the modules
-       to be installed
-    """
-    def __init__(self, *args, **kwargs):
-        super(FullInstall, self).__init__(*args, **kwargs)
-
-        atexit.register(post_install)
 
 print(find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]))
 
@@ -73,8 +52,7 @@ setup(
     tests_require=['pytest'],
     test_suite='tests',
     cmdclass={
-        'clean': CleanCommand,
-        'install': FullInstall
+        'clean': CleanCommand
     }
 )
 
