@@ -11,7 +11,7 @@ This repository contains the CLI and SDK for the WordCount Python [ wc.py ].
 
 For the **CLI interface quickstart** please refer to the **User Guide below**.
 
-For the **SDK interface quickstart** please refer to the **Developer Guide below**.
+For the **SDK interface quickstart** please refer to the **SDK Interface below**.
 
 For more advanced documnetation please refer to the official [WCPY documentation](https://axsauze.github.io/wcpy/).
 
@@ -103,7 +103,7 @@ wc.py ./ --filter-words tool awesome an --truncate 50 --output output.txt
 wc.py -v
 ```
 
-# Development
+# SDK Interface: WCExtractor Class
 
 To interact with the SDK, you only need to import the WCExtractor class, and interact with three main methods:
 
