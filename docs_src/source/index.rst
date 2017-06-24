@@ -10,7 +10,7 @@ Welcome to wc.py - WordCount Python's documentation!
    :maxdepth: 4
 
 
-Welcome to the ``wc.py`` documentation. Here you will find everything, from the quick start guide to the detailed docstrings that cover all the functions in the wc.py script.
+Welcome to the ``wc.py`` documentation. Here you will the installation guide, the quick start guide, and the detailed docstrings code documentation of the wc.py library.
 
 
 

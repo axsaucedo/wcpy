@@ -6,3 +6,5 @@ venv
 .eggs
 .cache
 wcpy.egg-info/
+build
+dist

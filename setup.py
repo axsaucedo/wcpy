@@ -1,7 +1,6 @@
 from setuptools import setup, Command, find_packages
 from distutils.command.install_data import install_data
 import os
-import wcpy
 
 currentFileDirectory = os.path.dirname(__file__)
 with open(os.path.join(currentFileDirectory, "README.md"), "r") as f:
@@ -33,23 +32,23 @@ print(find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]))
 
 setup(
     name="wcpy",
-    version=wcpy.VERSION,
-    description="Count the number of words in a folder",
+    version="0.2",
+    description="WordCount in Python with a lot more functionality",
     long_description=readme,
     author="Alejandro Saucedo",
     author_email="a@e-x.io",
     url="https://github.com/axsauze/wcpy",
     classifiers=[
-        "Development Status :: 3 - Alpha Development Status"
         "Intended Audience :: Developers",
-        "Programming Language :: Python 3",
-        "Programming Language :: Python 3.2",
-        "Programming Language :: Python 3.3",
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
     ],
     keywords="Word count (wcpy) on steroids",
     license="MIT",
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
-    install_requirements=requirements,
+    include_package_data=True,
+    install_requires=requirements,
     scripts=('wc.py',),
     data_files=[ (".", ["LICENSE"]) ],
     setup_requires=['pytest-runner'],
