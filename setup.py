@@ -1,7 +1,11 @@
 from setuptools import setup, Command, find_packages
 from setuptools.command.install import install
 import os
+import sys
 import atexit
+
+if sys.version_info < (3,0):
+    sys.exit('Sorry, Python < 3.0 is not supported')
 
 currentFileDirectory = os.path.dirname(__file__)
 with open(os.path.join(currentFileDirectory, "README.md"), "r") as f:
@@ -45,7 +49,7 @@ print(find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]))
 
 setup(
     name="wcpy",
-    version="0.1",
+    version="1.0",
     description="WordCount in Python with a lot more functionality",
     long_description=readme,
     author="Alejandro Saucedo",

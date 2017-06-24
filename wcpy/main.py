@@ -23,13 +23,13 @@ def get_argument_parser():
         epilog="""
 
 EXAMPLE USAGE:
-                wc.py --paths ./
-                wc.py --paths ./ --limit 10
-                wc.py --paths ./ tests/test_data/doc1.txt --filter-words tool awesome an
-                wc.py --paths tests/test_data/ --truncate 100 --columns word count
-                wc.py --paths ./ --filter-words tool awesome an --truncate 50 --output output.txt
+                wc.py ./
+                wc.py ./ --limit 10
+                wc.py doc1.txt doc2.txt --filter-words tool awesome an
+                wc.py docs/ tests/ --truncate 100 --columns word count
+                wc.py ./ --filter-words tool awesome an --truncate 50 --output output.txt
         """)
-    parser.add_argument("--paths", nargs="+", required=True, type=str,
+    parser.add_argument("paths", nargs="+", type=str,
         help="(REQUIRED) Path(s) to folders and/or files to count words from")
     parser.add_argument("--limit", type=int,
         help="(Optional) Limit the number of results that you would like to display.")
