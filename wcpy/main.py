@@ -5,7 +5,7 @@ command line interface.
 """
 
 
-from wcpy import WCExtractor
+from wcpy import WCExtractor, VERSION
 
 import argparse
 
@@ -31,6 +31,8 @@ EXAMPLE USAGE:
         """)
     parser.add_argument("paths", nargs="+", type=str,
         help="(REQUIRED) Path(s) to folders and/or files to count words from")
+    parser.add_argument("-v", "--version", action="version",
+        version="WordCount Python [ wc.py ] Version " + VERSION)
     parser.add_argument("--limit", type=int,
         help="(Optional) Limit the number of results that you would like to display.")
     parser.add_argument("--reverse", action="store_true",

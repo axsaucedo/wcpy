@@ -2,11 +2,12 @@
 import nltk
 from nltk.tokenize import word_tokenize
 import os
+import wcpy
 
-# Add the nltk_data files to the projectgs
-file_path = os.path.abspath(__file__)
-project_path = os.path.abspath(os.path.join(file_path,"../../nltk_data"))
-nltk.data.path.append(project_path)
+# Add the nltk_data files to the projects
+file_path = os.path.dirname(wcpy.__file__)
+nltk_data_path = os.path.join(file_path, 'nltk_data')
+nltk.data.path.append(nltk_data_path)
 
 class PathNotValidException(Exception):
     """

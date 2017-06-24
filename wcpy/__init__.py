@@ -4,4 +4,4 @@ from wcpy.wc_extractor import WCExtractor
 
 __all__ = [ 'WCExtractorFile', 'WCExtractorProcessor', 'WCExtractor', 'DIRECTION', 'main' ]
 
-VERSION = "0.1"
+VERSION = "1.1"
