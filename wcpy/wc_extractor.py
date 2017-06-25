@@ -3,6 +3,7 @@ import nltk
 from nltk.tokenize import word_tokenize
 import os
 import wcpy
+import re
 
 # Add the nltk_data files to the projects
 file_path = os.path.dirname(wcpy.__file__)
@@ -27,29 +28,29 @@ class WCExtractor:
         filter_words (list): A set of words to filter on
     """
 
-    def __init__(self, file_path, file_opener=open, filter_words=[]):
-        self._file_path = file_path
+    def __init__(self, file_opener=open, filter_words=[]):
         self._file_opener = file_opener
         self._filter_words = set(filter_words)
 
-    def extract_wc_from_file(self, d_words={}):
+    def extract_wc_from_file(self, file_path, d_words={}):
         """
         Extracts all the contents of a file, with the self.file_opener injected object
         and passes it to the main function to extract the word counts
 
         Args:
+            file_path (string): The path to the file to extract
             d_words (dict): An object to add the words, sentences and docs to
 
         Returns:
             d_words(dict:parameter): The return is given through this parameter passed by reference
         """
 
-        with self._file_opener(self._file_path) as file:
+        with self._file_opener(file_path) as file:
 
             for line in file:
-                self.extract_wc_from_line(line, d_words=d_words)
+                self.extract_wc_from_line(line, file_path, d_words=d_words)
 
-    def extract_wc_from_line(self, line, d_words={}):
+    def extract_wc_from_line(self, line, file_path, d_words={}):
         """
         This is the core function of the WCExtractor Object. It
             breaks down the line into individual tokens using the NLP library
@@ -57,6 +58,7 @@ class WCExtractor:
 
         Args:
             line (string): String containing the text to break into tokens and clean
+            file_path (string): The path of the file
             d_words (dict): Object to add the words, sentences and docs to
 
         Returns:
@@ -64,8 +66,10 @@ class WCExtractor:
          """
 
         already_added_words = set()
+        # Clean line from whitespace
+        clean_line = re.sub('\s+', ' ', line).strip()
         # Break line into tokens
-        words = self._split_line(line)
+        words = self._split_line(clean_line)
 
         for word in words:
 
@@ -76,7 +80,7 @@ class WCExtractor:
             else:
                 add_sentence = False
 
-            self._add_word(word, line, d_words, add_sentence=add_sentence)
+            self._add_word(word, clean_line, file_path, d_words, add_sentence=add_sentence)
 
     def _split_line(self, line):
         """
@@ -104,7 +108,7 @@ class WCExtractor:
         return processed_words
 
 
-    def _add_word(self, word, line, d_words={}, add_sentence=True):
+    def _add_word(self, word, line, file_path, d_words={}, add_sentence=True):
         """
             This function adds a word and increases its occurence, sentence and document to the
             dictionary, and handles all the necessary cases to create new objects
@@ -112,6 +116,7 @@ class WCExtractor:
             Args:
                 word (str): The new word to add and count
                 line (str): The line where the word occurs
+                file_path (str): The path of the file
                 d_words (dict): The WC dictionary to add he word to
                 add_sentence (bool): A boolean that states if the sentence is added or not
         """
@@ -119,7 +124,7 @@ class WCExtractor:
              d_words[word] = {
                 "word_count": 0,
                 "files": {
-                    self._file_path: []
+                    file_path: []
                 }
             }
 
@@ -127,10 +132,10 @@ class WCExtractor:
 
         dw_f = d_words[word]["files"]
 
-        if self._file_path not in dw_f:
-            dw_f[self._file_path] = []
+        if file_path not in dw_f:
+            dw_f[file_path] = []
 
         if add_sentence:
-            dw_f[self._file_path].append(line)
+            dw_f[file_path].append(line)
 
 

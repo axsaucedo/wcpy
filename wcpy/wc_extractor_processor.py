@@ -20,7 +20,7 @@ class WCExtractorProcessor:
             direction (bool): Sort direction: Ascending / Descenting
     """
 
-    def __init__(self, limit=None, direction=DIRECTION.ASCENDING):
+    def __init__(self, limit=None, direction=DIRECTION.DESCENDING):
         self._limit = limit
         self._direction = direction
 

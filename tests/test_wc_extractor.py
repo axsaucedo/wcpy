@@ -18,9 +18,9 @@ class TestWCExtractor(unittest.TestCase):
 
     def test_wc_extractor_file_end_to_end_with_files(self):
 
-        extractor = WCExtractor(ACTUAL_FILE)
+        extractor = WCExtractor()
         result_wc = {}
-        extractor.extract_wc_from_file(result_wc)
+        extractor.extract_wc_from_file(ACTUAL_FILE, result_wc)
 
         # Make sure result is not empty
         self.assertTrue(result_wc)
@@ -46,7 +46,7 @@ class TestWCExtractor(unittest.TestCase):
 
         openMock = MagicMock()
         openMock.return_value.__enter__.return_value = [TEST_SENTENCE, TEST_SENTENCE_2]
-        extractor = WCExtractor(TEST_FILE, file_opener=openMock, filter_words=filter_words)
+        extractor = WCExtractor(file_opener=openMock, filter_words=filter_words)
 
         result_d_words = {}
         expected_d_words = {
@@ -58,7 +58,7 @@ class TestWCExtractor(unittest.TestCase):
             }
         }
 
-        extractor.extract_wc_from_file(result_d_words)
+        extractor.extract_wc_from_file(TEST_FILE, result_d_words)
         self.assertEqual(result_d_words, expected_d_words)
 
 
@@ -66,7 +66,7 @@ class TestWCExtractor(unittest.TestCase):
 
         openMock = MagicMock()
         openMock.return_value.__enter__.return_value = [TEST_SENTENCE, TEST_SENTENCE_2]
-        extractor = WCExtractor(TEST_FILE, file_opener=openMock, filter_words=[])
+        extractor = WCExtractor(file_opener=openMock, filter_words=[])
 
         result_dw = {}
         expected_dw = {
@@ -90,7 +90,7 @@ class TestWCExtractor(unittest.TestCase):
             }
         }
 
-        extractor.extract_wc_from_file(result_dw)
+        extractor.extract_wc_from_file(TEST_FILE, result_dw)
 
         self.assertEqual(result_dw, expected_dw)
 
@@ -99,7 +99,7 @@ class TestWCExtractor(unittest.TestCase):
 
         openMock = MagicMock()
         openMock.return_value.__enter__.return_value = [TEST_SENTENCE, TEST_SENTENCE_2]
-        extractor = WCExtractor(TEST_FILE, file_opener=openMock, filter_words=[])
+        extractor = WCExtractor(file_opener=openMock, filter_words=[])
 
         add_word_mock = MagicMock()
         extractor._add_word = add_word_mock
@@ -108,7 +108,7 @@ class TestWCExtractor(unittest.TestCase):
         extractor._split_line = split_line_mock
 
         result_dw = {}
-        extractor.extract_wc_from_file(result_dw)
+        extractor.extract_wc_from_file(TEST_FILE, result_dw)
 
         expected_line_calls = [call(TEST_SENTENCE), call(TEST_SENTENCE_2)]
 
@@ -189,7 +189,7 @@ class TestWCExtractor(unittest.TestCase):
             }
         }
 
-        extractor._add_word(TEST_WORD, TEST_SENTENCE, result_d_words)
+        extractor._add_word(TEST_WORD, TEST_SENTENCE, TEST_FILE, result_d_words)
 
         self.assertEqual(result_d_words, expected_d_words)
 
@@ -208,9 +208,9 @@ class TestWCExtractor(unittest.TestCase):
             }
         }
 
-        extractor._add_word(TEST_WORD, TEST_SENTENCE, result_d_words)
-        extractor._add_word(TEST_WORD, TEST_SENTENCE_2, result_d_words)
-        extractor._add_word(TEST_WORD, TEST_SENTENCE, result_d_words)
+        extractor._add_word(TEST_WORD, TEST_SENTENCE, TEST_FILE, result_d_words)
+        extractor._add_word(TEST_WORD, TEST_SENTENCE_2, TEST_FILE, result_d_words)
+        extractor._add_word(TEST_WORD, TEST_SENTENCE, TEST_FILE, result_d_words)
 
         self.assertEqual(result_d_words, expected_d_words)
 

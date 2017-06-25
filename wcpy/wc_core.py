@@ -62,8 +62,8 @@ class WCCore:
         all_file_paths = self._extract_all_paths(paths)
 
         for path in all_file_paths:
-            extractor_file = self._extractor_file(path, filter_words=self._filter_words)
-            extractor_file.extract_wc_from_file(result_dict)
+            extractor_file = self._extractor_file(filter_words=self._filter_words)
+            extractor_file.extract_wc_from_file(path, result_dict)
 
         return result_dict
 
