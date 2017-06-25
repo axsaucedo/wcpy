@@ -29,7 +29,7 @@ print(find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]))
 
 setup(
     name="wcpy",
-    version="1.1",
+    version="1.2",
     description="WordCount in Python with a lot more functionality",
     long_description=readme,
     author="Alejandro Saucedo",
