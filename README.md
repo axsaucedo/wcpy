@@ -15,6 +15,14 @@ For the **SDK interface quickstart** please refer to the **SDK Interface below**
 
 For more advanced documnetation please refer to the official [WCPY documentation](https://axsauze.github.io/wcpy/).
 
+### WCPY Interface
+
+The word count python interface also has an external interface that can be used to interact with.
+
+![Image of wcpy API](https://github.com/axsauze/wcpy-api/blob/master/assets/wcpy-api.jpg)
+
+This interface can be found at [https://github.com/axsauze/wcpy-api](https://github.com/axsauze/wcpy-api)
+
 # Installation
 
 You can install it from pip by running:
