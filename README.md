@@ -7,7 +7,7 @@ Utility tool to count the occurrences of words in text using an NLP tokenizer.
 
 This repository contains the CLI and SDK for the WordCount Python [ wc.py ].
 
-`wc.py` provides a set of tools to analyse the number of occurences of words across a single or multiple documents. It can be accessed through the CLI, or directly through the SDK provided by the `WCExtractor` class in the `wcpy` module.
+`wc.py` provides a set of tools to analyse the number of occurences of words across a single or multiple documents. It can be accessed through the CLI, or directly through the SDK provided by the `WCExtractor` and the `WCCore` classes in the `wcpy` module.
 
 For the **CLI interface quickstart** please refer to the **User Guide below**.
 
@@ -103,13 +103,46 @@ wc.py ./ --filter-words tool awesome an --truncate 50 --output output.txt
 wc.py -v
 ```
 
-# SDK Interface: WCExtractor Class
+# SDK Interface
 
-To interact with the SDK, you only need to import the WCExtractor class, and interact with three main methods:
+It is possible to interact with the SDK in multiple levels, the two most common usecases will be:
 
-## generate_wc_dict(self, paths)
+* WCCore class - Interact with filepaths
+* WCExtractor class - Interact with files and text
+
+## WCCore class
+
+### generate_wc_dict(self, paths)
 
 This function finds all the files in a given set of paths, and builds a dictionary with the following structure:
+
+
+### generate_wc_list(self, paths)
+
+This function finds all the files in a given set of paths, and builds a sorted list (by word count) of the following structure
+
+
+## WCExtractor class
+
+### extract_wc_from_file
+
+This function extracts all the text from a file and builds a wc_dict object
+
+### extract_wc_from_line
+
+This function extracts all the words from a line and adds it to a wc_dict object
+
+## WCExtractorProcessor class
+
+This class does all the processing to convert a WC Dict into a sorted WCList object.
+
+### process_dict_wc_to_list
+
+As function name suggest, this function converts a WCDict object into a sorted WCList object.
+
+## Core WC Types
+
+### WCDict
 
 ```
 {
@@ -130,9 +163,7 @@ This function finds all the files in a given set of paths, and builds a dictiona
 }
 ```
 
-## generate_wc_list(self, paths)
-
-This function finds all the files in a given set of paths, and builds a sorted list (by word count) of the following structure
+### WCList
 
 ```
 [
