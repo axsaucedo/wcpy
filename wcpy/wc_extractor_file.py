@@ -34,33 +34,49 @@ class WCExtractorFile:
 
     def extract_wc_from_file(self, d_words={}):
         """
-        This is the main public function, which extracts all the contents of
-        a file, counts the number of occurences and updates the dictionary object
+        Extracts all the contents of a file, with the self.file_opener injected object
+        and passes it to the main function to extract the word counts
 
         Args:
             d_words (dict): An object to add the words, sentences and docs to
 
-        Returns
+        Returns:
             d_words(dict:parameter): The return is given through this parameter passed by reference
         """
 
         with self._file_opener(self._file_path) as file:
 
             for line in file:
-                already_added_words = set()
-                words = self._split_line(line)
+                self.extract_wc_from_string(line, d_words=d_words)
 
-                for word in words:
+    def extract_wc_from_line(self, line, d_words={}):
+        """
+        This is the core function of the WCExtractorFile Object. It
+            breaks down the line into individual tokens using the NLP library
+            and then adds the word, document and sentence to the object.
 
-                    add_sentence = True
+        Args:
+            line (string): String containing the text to break into tokens and clean
+            d_words (dict): Object to add the words, sentences and docs to
 
-                    if word not in already_added_words:
-                        already_added_words.add(word)
-                    else:
-                        add_sentence = False
+        Returns:
+            d_words (dict:parameter): The return is the WC object given throught the parameter passed by reference
+         """
 
-                    self._add_word(word, line, d_words, add_sentence=add_sentence)
+        already_added_words = set()
+        # Break line into tokens
+        words = self._split_line(line)
 
+        for word in words:
+
+            add_sentence = True
+
+            if word not in already_added_words:
+                already_added_words.add(word)
+            else:
+                add_sentence = False
+
+            self._add_word(word, line, d_words, add_sentence=add_sentence)
 
     def _split_line(self, line):
         """
