@@ -5,7 +5,7 @@ command line interface.
 """
 
 
-from wcpy import WCExtractor, VERSION
+from wcpy import WCCore, VERSION
 
 import argparse
 
@@ -52,14 +52,14 @@ EXAMPLE USAGE:
 
 def main(args):
     """
-    Deploys a WCExtractor on the arguments that have been given through the
+    Deploys a WCCore on the arguments that have been given through the
     command line interface.
 
     Raises:
         InvalidColumnException: When a column provided in the options is invalid
         PathNotValidException: When path provided does not exist or not valid
     """
-    extractor = WCExtractor(
+    extractor = WCCore(
                     limit=args.limit,
                     direction=not(args.reverse),
                     filter_words=args.filter_words,

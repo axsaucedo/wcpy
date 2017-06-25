@@ -1,318 +1,136 @@
 
-from wcpy.wc_extractor_processor import WCExtractorProcessor, DIRECTION
-from wcpy.wc_extractor_file import WCExtractorFile, PathNotValidException
+import nltk
+from nltk.tokenize import word_tokenize
+import os
+import wcpy
 
-import glob, os
+# Add the nltk_data files to the projects
+file_path = os.path.dirname(wcpy.__file__)
+nltk_data_path = os.path.join(file_path, 'nltk_data')
+nltk.data.path.append(nltk_data_path)
 
-VALID_COLUMNS = ["word", "word_count", "files", "file_count", "sentences", "sentence_count"]
-VALID_COLUMNS_SET = set(VALID_COLUMNS)
-
+class PathNotValidException(Exception):
+    """
+    Thrown when a path provided does not exist or is not valid
+    """
+    def __init__(self, path):
+        Exception.__init__(self, "Path provided is not valid: " + str(path))
 
 class WCExtractor:
     """
-    The extractor class is the highest level interface and orchestrates the
-    file extractors as well as the processors. It handles everything related
-    to managing the folder glob expansion and processing/ printing the output.
-
-    Note:
-        The file_extension is still a feature that has not been tested with other types of files
+    The extractor file class is the core of the processing. It extracts the contents
+    of the files themselves, counts the words and adds them to a WC dictionary object.
 
     Args:
-        limit (int): Limits the number of rows in the output table
-        direction (int): Sort direction for elements in table
-        filter_words (list): If present, only those words will be shown in output
-        output_file (str): If present, output will be saved to file instead of printed to standard output
-        file_extension (str): File type to process - everything else will be ignored
-        extractor_processor (WCExtractorProcessor): Dependency Injection for WCExtractorProcessor class for testing
-        extractor_file (WCExtractorFile): Dependency injection for WCExtractorFile class for testing
+        file_path (str): The file path to extract the words from
+        file_opener (func): A function that it will use to open files, passed for dependency injection
+        filter_words (list): A set of words to filter on
     """
 
-    def __init__(self, limit=None, direction=DIRECTION.ASCENDING,
-                    extractor_file=WCExtractorFile, filter_words=[],
-                    extractor_processor=WCExtractorProcessor,
-                    file_extension="txt", output_file=None):
+    def __init__(self, file_path, file_opener=open, filter_words=[]):
+        self._file_path = file_path
+        self._file_opener = file_opener
+        self._filter_words = set(filter_words)
 
-        if output_file and os.path.exists(output_file):
-            raise PathNotValidException("A file already exists, please choose a different one: " + output_file)
-
-        # TODO: Check for valid file extension
-        self._file_extension = file_extension
-        self._limit = limit
-        self._direction = direction
-        self._extractor_processor = extractor_processor
-        self._extractor_file = extractor_file
-        self._filter_words = filter_words
-        self._output_file = output_file
-
-
-    def generate_wc_dict(self, paths):
+    def extract_wc_from_file(self, d_words={}):
         """
-            Generate a dictionary of WC with the words as keys and their Docs, counts and sentences as values
-
-            Args:
-                paths (list): The paths to traverse and extract files from
-
-            Returns:
-                result_dict: Dictionary containing the WC objects
-        """
-
-        result_dict = {}
-
-        self._check_all_root_paths_valid(paths)
-        all_file_paths = self._extract_all_paths(paths)
-
-        for path in all_file_paths:
-            extractor_file = self._extractor_file(path, filter_words=self._filter_words)
-            extractor_file.extract_wc_from_file(result_dict)
-
-        return result_dict
-
-
-    def generate_wc_list(self, paths):
-        """
-            Generates a soted list of WC objects from the files in the paths given
-
-            Args:
-                paths (list): List of strings with the paths to traverse and find files to extract
-
-            Returns:
-                result_list: A list with the sorted WC objects
-        """
-
-        dict_wc = self.generate_wc_dict(paths)
-
-        extractor_processor = self._extractor_processor(limit=self._limit, direction=self._direction)
-        result_list = extractor_processor.process_dict_wc_to_list(dict_wc)
-
-        return result_list
-
-
-    def display_wc_table(self, paths, char_limit=50, columns=None):
-        """
-            Displays the Word Occurences found in the paths given
-            it specifies whether it should be printed to the console or
-            saved into a file
-
-            Args:
-                paths (list): Paths to traverse and find files to execute
-                char_limit (int): Number of chars where string cells will be truncated
-                columns (list): Columns that will be displayed
-        """
-
-        list_wc = self.generate_wc_list(paths)
-        headers, rows = self._generate_table(list_wc, char_limit=char_limit, columns=columns)
-
-        # Change the output stream depending on whether we are requiested
-        #   to save to a file or not
-        #   Provide an anonimous function with print(,end='') to avoid new
-        #   lines being printed and enable compatibility with the out_stream func
-        out_stream = lambda x: print(x, end='')
-        file = None
-        if self._output_file:
-            file = open(self._output_file, 'w')
-            out_stream = file.write
-
-        self._print_table_ascii(headers, rows, out_stream)
-
-        if file: file.close()
-
-    def _check_all_root_paths_valid(self, paths):
-        """
-            Checks that all the paths in the array given are valid paths
-
-            Args:
-                paths (list): List of strings containing all paths to be checked
-
-            Raises:
-                PathNotValidException: If a path is not valid, it raises this exception
-        """
-        for path in paths:
-            if not os.path.exists(path):
-                raise PathNotValidException(path)
-
-            # TODO: Add support for globbed files
-            if "*" in path:
-                raise PathNotValidException("Globbed paths (*) are not supported, please just select the folder: " + str(path))
-
-
-    def _extract_all_paths(self, paths):
-        """
-            Traverses all folders and subfolders recurisvely, and expands the paths
-                the paths must be valid, and can be checked with the
-                _check_all_root_paths_valid funciton. If they don't exist it will be
-                skipped.
-
-            Args:
-                paths: the paths to extract the subpaths from
-
-            Returns:
-                all_file_paths: All of the paths and subpaths found
-        """
-        all_file_paths = []
-        for path in paths:
-            if not os.path.exists(path):
-                continue
-
-
-            abs_path = os.path.abspath(path)
-
-            if os.path.isdir(abs_path):
-                sub_paths = self._expand_folder_paths(abs_path)
-                all_file_paths.extend(sub_paths)
-            else:
-                all_file_paths.append(abs_path)
-
-
-        return all_file_paths
-
-
-    def _expand_folder_paths(self, folder_path):
-        """
-        Recursively finds all the sub-folders from the path given in the parameter
+        Extracts all the contents of a file, with the self.file_opener injected object
+        and passes it to the main function to extract the word counts
 
         Args:
-            folder_path (string): Path given to find all subfiles and subfolders
+            d_words (dict): An object to add the words, sentences and docs to
 
         Returns:
-            all_sub_paths: List of string containing all sub-paths
+            d_words(dict:parameter): The return is given through this parameter passed by reference
         """
-        all_sub_paths = []
 
-        if not os.path.exists(folder_path):
-            return all_sub_paths
+        with self._file_opener(self._file_path) as file:
 
-        glob_extension = "**/*." + self._file_extension
-        glob_path = os.path.join(folder_path, glob_extension)
+            for line in file:
+                self.extract_wc_from_line(line, d_words=d_words)
 
-        for sub_path in glob.iglob(glob_path, recursive=True):
-            all_sub_paths.append(sub_path)
-
-        return all_sub_paths
-
-
-    def _generate_table(self, list_wc, char_limit=50, columns=None):
+    def extract_wc_from_line(self, line, d_words={}):
         """
-        Converts a sorted list of word occurence objects into a row-based
-        table containing all the elements of the list in a set of columns.
+        This is the core function of the WCExtractor Object. It
+            breaks down the line into individual tokens using the NLP library
+            and then adds the word, document and sentence to the object.
 
         Args:
-            list (list_wc): A list containing WC objects
-            char_limit (int): The maximum number of chars for words to be truncated
-            columns (list): A string list containing the columns to show
+            line (string): String containing the text to break into tokens and clean
+            d_words (dict): Object to add the words, sentences and docs to
 
         Returns:
-            headers: A 1-dimensional list of strings containing headers
-            rows: A 2-dimensional array containing all the list wc in table format
-        """
+            d_words (dict:parameter): The return is the WC object given throught the parameter passed by reference
+         """
 
-        # We first check that the columns are valid
-        if columns and len(columns):
-            columns = [ col.lower() for col in columns ]
-            for col in columns:
-                if col not in VALID_COLUMNS_SET:
-                    raise InvalidColumnException(col)
+        already_added_words = set()
+        # Break line into tokens
+        words = self._split_line(line)
 
-        # Creating a printable set of rows
-        rows = []
-        for obj_word in list_wc:
-            word = obj_word["word"]
-            wc = str(obj_word["word_count"])
-            files = []
-            sentences = []
+        for word in words:
 
-            for file_name in obj_word["files"]:
-                files.append(file_name.split("/")[-1])
-                file_sentences = obj_word["files"][file_name]
+            add_sentence = True
 
-                for sentence in file_sentences:
-                    sentences.append(sentence)
-
-            # Format documents and sentences for printing
-            str_files = ", ".join(files)
-            str_sentences = ", ".join(sentences)
-
-            # Truncate all the inputs to the char_limit
-            # TODO: This could be made more efficient by using
-            #   'continue' in the loop when char_limit is exceeded
-            if char_limit:
-                if char_limit < 5:
-                    print("WARNING: Minimum char limit must be above 5. Changing to 5.")
-                    # We substract 3 to add the '...' truncations
-                    char_trunc = char_limit - 3
-                str_files = str_files[:char_limit] + "..." if len(str_files) > char_limit else str_files
-                str_sentences = str_sentences[:char_limit] + "..." if len(str_sentences) > char_limit else str_sentences
-
-            count_files = str(len(files))
-            count_sentences = str(len(sentences))
-
-            # Note: if column becomes longer, it will be necessary
-            #   to create a set to improve time complexity
-            if columns and len(columns):
-                row_cols = []
-                if VALID_COLUMNS[0] in columns:
-                    row_cols.append(word)
-                if VALID_COLUMNS[1] in columns:
-                    row_cols.append(wc)
-                if VALID_COLUMNS[2] in columns:
-                    row_cols.append(str_files)
-                if VALID_COLUMNS[3] in columns:
-                    row_cols.append(count_files)
-                if VALID_COLUMNS[4] in columns:
-                    row_cols.append(str_sentences)
-                if VALID_COLUMNS[5] in columns:
-                    row_cols.append(count_sentences)
-
-                rows.append(row_cols)
+            if word not in already_added_words:
+                already_added_words.add(word)
             else:
-                rows.append([ word, wc, str_files, count_files, str_sentences, count_sentences ])
+                add_sentence = False
 
-        # We define the headers
-        headers = columns if columns and len(columns) else VALID_COLUMNS
+            self._add_word(word, line, d_words, add_sentence=add_sentence)
 
-        return headers, rows
-
-    def _print_table_ascii(self, headers, rows, out_stream=print):
+    def _split_line(self, line):
         """
-        Converts a list of headers and a list of rows in an ASCII table
+        This function uses the NLTK library to remove characters
+        and split words intelligently.
+
+        The sentences that are repeated more than once in a document are not
+        added again.
+
+        Args:
+            line (str): The line to split
+
+        Returns:
+            processed_words: A list of words without containing individual symbols
         """
 
-        # Here, get the max_widths of all the data
-        #   To do this, first transpose / group all strings by columns.
-        #   Then get the strings with the most number of chars in each columns.
-        #   Finally count the number of characters in the longest string.
-        #   Those are our max_widths
-        max_widths = [ len(max(columns, key=len)) for columns in zip(*rows, headers) ]
+        words_with_symbols = word_tokenize(line)
+        words = [ w.lower() for w in words_with_symbols if any(char.isalpha() or char.isdigit() for char in w) ]
 
-        # First we create a row divider
-        #   Print a number of dashes relative to the width of each column
-        #   by using the * python operator.
-        #   The separator of each is also 3 characters long, same as above
-        out_stream(' ' + '-+-'.join( '-' * width for width in max_widths ) + '\n')
+        if len(self._filter_words) > 0:
+            words = [w for w in words if w in self._filter_words]
 
-        # Now print the headers
-        #   Using Python's format functionality, as it allows us to specify a
-        #   standard width, which will make our table consistent and symmetric
-        #   In this case, our width is 'max_width', and we print the title within that
-        #   and separate each of the strings by a pipe symbol '|'
-        out_stream('|' + ' | '.join( format(title, "%ds" % max_width) for max_width, title in zip(max_widths, headers) ) + '|'+ '\n')
+        processed_words = [ w.lower() for w in words if w not in '-' ]
 
-        # Another row divider
-        out_stream('|' + '-+-'.join( '-' * width for width in max_widths ) + '\n')
-
-        # Now print all the data
-        #   This uses a similar approach as the print map used above
-        #   when printing the headers
-        for row in rows:
-            out_stream('|' + " | ".join( format(cdata, "%ds" % width) for width, cdata in zip(max_widths, row) ) + '|'+ '\n')
-
-        # Final row divider
-        out_stream(' ' + '-+-'.join( '-' * width for width in max_widths ) + '\n')
+        return processed_words
 
 
-class InvalidColumnException(Exception):
-    """
-    Thrown when a column provided is not valid from the set of columns provided
-    """
-    def __init__(self, col):
-        Exception.__init__(self, "Column provided is not valid: " + str(col) + ". Valid columns are: " + str(VALID_COLUMNS))
+    def _add_word(self, word, line, d_words={}, add_sentence=True):
+        """
+            This function adds a word and increases its occurence, sentence and document to the
+            dictionary, and handles all the necessary cases to create new objects
+
+            Args:
+                word (str): The new word to add and count
+                line (str): The line where the word occurs
+                d_words (dict): The WC dictionary to add he word to
+                add_sentence (bool): A boolean that states if the sentence is added or not
+        """
+        if word not in d_words:
+             d_words[word] = {
+                "word_count": 0,
+                "files": {
+                    self._file_path: []
+                }
+            }
+
+        d_words[word]["word_count"] += 1
+
+        dw_f = d_words[word]["files"]
+
+        if self._file_path not in dw_f:
+            dw_f[self._file_path] = []
+
+        if add_sentence:
+            dw_f[self._file_path].append(line)
+
 
